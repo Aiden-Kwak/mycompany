@@ -44,7 +44,9 @@ export default function Home() {
         api.getProjects(),
         api.getDashboardStats(),
       ]);
-      setProjects(projectsData);
+      // Handle paginated response
+      const projects = Array.isArray(projectsData) ? projectsData : ((projectsData as any).results || []);
+      setProjects(projects);
       setStats(dashboardData.stats);
       setDepartments(dashboardData.departments);
     } catch (error) {
