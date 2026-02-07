@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PixelButton from '@/components/pixel/PixelButton';
 import PixelCard from '@/components/pixel/PixelCard';
+import { api } from '@/lib/api';
 
 interface SurveyQuestion {
   id: string;
@@ -165,10 +166,41 @@ export default function NewProjectPage() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Survey Answers:', answers);
-    // TODO: Send to backend API
-    router.push('/');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Prepare requirements data
+      const requirements = surveyQuestions.map(q => ({
+        category: q.category,
+        question: q.question,
+        answer: Array.isArray(answers[q.id])
+          ? (answers[q.id] as string[]).join(', ')
+          : (answers[q.id] as string || ''),
+        priority: q.required ? 'high' as const : 'medium' as const,
+      })).filter(req => req.answer);
+
+      // Create project
+      const projectData = {
+        name: answers['project_name'] as string,
+        description: answers['project_description'] as string,
+        github_repo: '',
+        requirements,
+      };
+
+      const project = await api.createProject(projectData);
+      
+      // Redirect to project page
+      router.push(`/project/${project.id}`);
+    } catch (err) {
+      console.error('Failed to create project:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create project');
+      setIsSubmitting(false);
+    }
   };
 
   const canProceed = () => {
@@ -212,6 +244,16 @@ export default function NewProjectPage() {
             />
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-slide-up">
+            <div className="flex items-center space-x-2 text-red-700">
+              <span className="text-xl">⚠️</span>
+              <span className="font-medium">{error}</span>
+            </div>
+          </div>
+        )}
 
         {/* Survey Card */}
         <PixelCard className="p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
@@ -318,9 +360,17 @@ export default function NewProjectPage() {
             <PixelButton
               variant="primary"
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || isSubmitting}
             >
-              {currentStep === totalSteps - 1 ? 'Create Project 🚀' : 'Next →'}
+              {isSubmitting ? (
+                <>
+                  <span className="animate-pulse">Creating...</span>
+                </>
+              ) : currentStep === totalSteps - 1 ? (
+                'Create Project 🚀'
+              ) : (
+                'Next →'
+              )}
             </PixelButton>
           </div>
         </PixelCard>

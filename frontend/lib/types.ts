@@ -4,11 +4,14 @@ export interface Project {
   name: string;
   description: string;
   status: 'planning' | 'in_progress' | 'completed' | 'failed';
-  createdAt: string;
-  updatedAt: string;
-  githubRepo?: string;
-  requirements: ProjectRequirement[];
-  agents: Agent[];
+  created_at: string;
+  updated_at: string;
+  created_by: number;
+  github_repo?: string;
+  requirements?: ProjectRequirement[];
+  agents?: Agent[];
+  agent_count?: number;
+  task_count?: number;
 }
 
 export interface ProjectRequirement {

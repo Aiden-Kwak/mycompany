@@ -1,4 +1,30 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
+import { Project } from '@/lib/types';
+
 export default function Home() {
+  const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      const data = await api.getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const departments = [
     {
       id: 'dev',
@@ -100,8 +126,8 @@ export default function Home() {
                 Settings
               </button>
               <button className="btn btn-primary text-sm py-2">
-                <span className="mr-2">🔗</span>
-                Connect GitHub
+                <span className="mr-2">➕</span>
+                New Project
               </button>
             </div>
           </div>
@@ -118,13 +144,94 @@ export default function Home() {
                   Welcome back, CEO! 👋
                 </h2>
                 <p className="text-lg text-slate-600">
-                  Your AI agents are working hard to grow your business
+                  {projects.length > 0
+                    ? 'Your AI agents are working hard to grow your business'
+                    : 'Create your first project to get started'}
                 </p>
               </div>
               <div className="text-6xl animate-pulse-soft">🏢</div>
             </div>
           </div>
         </section>
+
+        {/* Projects Section */}
+        {loading ? (
+          <section className="animate-slide-up" style={{ animationDelay: '0.15s' }}>
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4 animate-bounce">📦</div>
+              <p className="text-lg text-slate-600">Loading projects...</p>
+            </div>
+          </section>
+        ) : projects.length > 0 ? (
+          <section className="animate-slide-up" style={{ animationDelay: '0.15s' }}>
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">Your Projects</h2>
+                <p className="text-slate-600 mt-1">Manage and monitor your AI-powered projects</p>
+              </div>
+              <button
+                className="btn btn-primary text-sm py-2"
+                onClick={() => router.push('/project/new')}
+              >
+                <span className="mr-2">➕</span>
+                New Project
+              </button>
+            </div>
+
+            <div className="grid-auto-fit">
+              {projects.map((project, index) => (
+                <div
+                  key={project.id}
+                  className="department-card group"
+                  style={{ animationDelay: `${0.2 + index * 0.05}s` }}
+                  onClick={() => router.push(`/project/${project.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-4xl">📁</div>
+                    <span className={`badge ${
+                      project.status === 'completed' ? 'badge-success' :
+                      project.status === 'in_progress' ? 'badge-primary' :
+                      project.status === 'failed' ? 'badge-danger' :
+                      'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {project.status.replace('_', ' ')}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    {project.name}
+                  </h3>
+                  <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                    {project.description}
+                  </p>
+
+                  <div className="flex items-center justify-between text-sm text-slate-600">
+                    <span>Created {new Date(project.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="animate-slide-up" style={{ animationDelay: '0.15s' }}>
+            <div className="card p-12 text-center">
+              <div className="text-6xl mb-4">🚀</div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                No projects yet
+              </h3>
+              <p className="text-slate-600 mb-6">
+                Create your first project and let AI agents build it for you
+              </p>
+              <button
+                className="btn btn-primary"
+                onClick={() => router.push('/project/new')}
+              >
+                <span className="mr-2">➕</span>
+                Create First Project
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Stats Grid */}
         <section className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
