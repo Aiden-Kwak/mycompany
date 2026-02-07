@@ -13,6 +13,9 @@ import TaskCreateModal from '@/components/tasks/TaskCreateModal';
 import GitHubConnectModal from '@/components/github/GitHubConnectModal';
 import GitHubRepoCard from '@/components/github/GitHubRepoCard';
 import APIKeyManagementModal from '@/components/settings/APIKeyManagementModal';
+import PlanningDocumentModal from '@/components/planning/PlanningDocumentModal';
+import AutoDevelopmentModal from '@/components/planning/AutoDevelopmentModal';
+import DevelopmentProgressTracker from '@/components/planning/DevelopmentProgressTracker';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -30,7 +33,12 @@ export default function ProjectDetailPage() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState(false);
   const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
+  const [showPlanningModal, setShowPlanningModal] = useState(false);
+  const [showDevelopmentModal, setShowDevelopmentModal] = useState(false);
+  const [showProgressTracker, setShowProgressTracker] = useState(false);
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+  const [planningDocument, setPlanningDocument] = useState<any>(null);
+  const [developmentStatus, setDevelopmentStatus] = useState<'idle' | 'planning' | 'ready' | 'developing' | 'completed'>('idle');
 
   useEffect(() => {
     loadProject();
@@ -349,14 +357,244 @@ export default function ProjectDetailPage() {
           )}
         </section>
 
-        {/* Actions */}
+        {/* AI Configuration & Automation */}
         <section className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">🤖 AI-Powered Automation</h2>
+          
+          {/* AI Provider Setup */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* API Keys Status */}
+            <PixelCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-900">🔑 AI Provider Setup</h3>
+                <PixelButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowAPIKeyModal(true)}
+                >
+                  Manage Keys
+                </PixelButton>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🤖</span>
+                    <div>
+                      <div className="font-medium text-slate-900">OpenAI (GPT-4)</div>
+                      <div className="text-sm text-slate-600">For code generation</div>
+                    </div>
+                  </div>
+                  <span className="badge badge-success">✓ Active</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🧠</span>
+                    <div>
+                      <div className="font-medium text-slate-900">Anthropic (Claude)</div>
+                      <div className="text-sm text-slate-600">For planning & review</div>
+                    </div>
+                  </div>
+                  <span className="badge bg-slate-200 text-slate-600">Not configured</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">💎</span>
+                    <div>
+                      <div className="font-medium text-slate-900">Google (Gemini)</div>
+                      <div className="text-sm text-slate-600">Alternative provider</div>
+                    </div>
+                  </div>
+                  <span className="badge bg-slate-200 text-slate-600">Not configured</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start space-x-2">
+                  <span className="text-blue-600">ℹ️</span>
+                  <div className="text-sm text-blue-800">
+                    <strong>Tip:</strong> Configure at least one AI provider to enable automated development.
+                  </div>
+                </div>
+              </div>
+            </PixelCard>
+
+            {/* Development Status */}
+            <PixelCard className="p-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">📊 Automation Status</h3>
+              
+              <div className="space-y-4">
+                {/* Planning Status */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-700">Planning Document</span>
+                    {planningDocument ? (
+                      <span className="badge badge-success">✓ Generated</span>
+                    ) : (
+                      <span className="badge bg-slate-200 text-slate-600">Not started</span>
+                    )}
+                  </div>
+                  {planningDocument && (
+                    <p className="text-sm text-slate-600">
+                      {planningDocument.executive_summary?.substring(0, 100)}...
+                    </p>
+                  )}
+                </div>
+
+                {/* Agents Status */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-700">AI Agents</span>
+                    <span className="badge badge-primary">{agents.length} agents</span>
+                  </div>
+                  {agents.length > 0 && (
+                    <div className="flex -space-x-2">
+                      {agents.slice(0, 5).map((agent) => (
+                        <div
+                          key={agent.id}
+                          className="w-8 h-8 rounded-full bg-white border-2 border-white flex items-center justify-center text-lg"
+                          title={agent.name}
+                        >
+                          {agent.avatar}
+                        </div>
+                      ))}
+                      {agents.length > 5 && (
+                        <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-xs font-medium">
+                          +{agents.length - 5}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Development Progress */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-700">Development Progress</span>
+                    <span className="text-sm font-semibold text-primary-600">0%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div className="bg-primary-500 h-2 rounded-full" style={{ width: '0%' }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="text-sm text-slate-600">
+                  <strong>Next Step:</strong> {
+                    !planningDocument ? 'Generate planning document' :
+                    agents.length === 0 ? 'Create AI agents' :
+                    'Start automated development'
+                  }
+                </div>
+              </div>
+            </PixelCard>
+          </div>
+
+          {/* Automation Actions */}
+          <PixelCard className="p-6 bg-gradient-to-r from-primary-50 to-blue-50 border-2 border-primary-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">🚀 Automated Development Workflow</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* Step 1 */}
+              <div className="relative">
+                <div className={`p-4 rounded-lg border-2 ${
+                  planningDocument ? 'bg-green-50 border-green-300' : 'bg-white border-slate-300'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">📋</span>
+                    {planningDocument && <span className="text-green-600">✓</span>}
+                  </div>
+                  <h4 className="font-semibold text-slate-900 mb-1">Step 1: Planning</h4>
+                  <p className="text-sm text-slate-600 mb-3">
+                    AI analyzes requirements and generates PRD
+                  </p>
+                  <PixelButton
+                    variant={planningDocument ? "secondary" : "primary"}
+                    size="sm"
+                    onClick={() => setShowPlanningModal(true)}
+                    className="w-full"
+                  >
+                    {planningDocument ? 'View Document' : '🤖 Generate Planning'}
+                  </PixelButton>
+                </div>
+                {/* Arrow */}
+                <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 text-2xl text-slate-400">
+                  →
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative">
+                <div className={`p-4 rounded-lg border-2 ${
+                  agents.length > 0 ? 'bg-green-50 border-green-300' : 'bg-white border-slate-300'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">🤖</span>
+                    {agents.length > 0 && <span className="text-green-600">✓</span>}
+                  </div>
+                  <h4 className="font-semibold text-slate-900 mb-1">Step 2: Agents</h4>
+                  <p className="text-sm text-slate-600 mb-3">
+                    Auto-create specialized AI agents
+                  </p>
+                  <PixelButton
+                    variant="secondary"
+                    size="sm"
+                    disabled={!planningDocument}
+                    className="w-full"
+                  >
+                    {agents.length > 0 ? `${agents.length} Agents` : 'Create Agents'}
+                  </PixelButton>
+                </div>
+                {/* Arrow */}
+                <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 text-2xl text-slate-400">
+                  →
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div>
+                <div className={`p-4 rounded-lg border-2 ${
+                  developmentStatus === 'completed' ? 'bg-green-50 border-green-300' : 'bg-white border-slate-300'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">💻</span>
+                    {developmentStatus === 'completed' && <span className="text-green-600">✓</span>}
+                  </div>
+                  <h4 className="font-semibold text-slate-900 mb-1">Step 3: Development</h4>
+                  <p className="text-sm text-slate-600 mb-3">
+                    AI generates complete codebase
+                  </p>
+                  <PixelButton
+                    variant="success"
+                    size="sm"
+                    disabled={!planningDocument || agents.length === 0}
+                    onClick={() => setShowDevelopmentModal(true)}
+                    className="w-full"
+                  >
+                    🚀 Start Development
+                  </PixelButton>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center space-x-2 text-sm text-slate-600">
+              <span>⏱️</span>
+              <span>Estimated time: 10-15 minutes</span>
+              <span>•</span>
+              <span>💰</span>
+              <span>Estimated cost: $2-5</span>
+            </div>
+          </PixelCard>
+        </section>
+
+        {/* Quick Actions */}
+        <section className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
           <PixelCard className="p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">⚡ Quick Actions</h3>
             <div className="flex flex-wrap gap-3">
-              <PixelButton variant="primary">
-                🚀 Start Development
-              </PixelButton>
               <PixelButton
                 variant="secondary"
                 onClick={() => setShowAPIKeyModal(true)}
@@ -415,6 +653,48 @@ export default function ProjectDetailPage() {
         <APIKeyManagementModal
           isOpen={showAPIKeyModal}
           onClose={() => setShowAPIKeyModal(false)}
+        />
+      )}
+
+      {/* Planning Document Modal */}
+      {showPlanningModal && (
+        <PlanningDocumentModal
+          isOpen={showPlanningModal}
+          projectId={projectId}
+          onClose={() => setShowPlanningModal(false)}
+          onSuccess={(doc) => {
+            setPlanningDocument(doc);
+            setDevelopmentStatus('ready');
+            loadProject(); // Reload to get auto-created agents
+          }}
+        />
+      )}
+
+      {/* Auto Development Modal */}
+      {showDevelopmentModal && (
+        <AutoDevelopmentModal
+          isOpen={showDevelopmentModal}
+          projectId={projectId}
+          planningDocument={planningDocument}
+          onClose={() => setShowDevelopmentModal(false)}
+          onStart={() => {
+            setShowDevelopmentModal(false);
+            setShowProgressTracker(true);
+            setDevelopmentStatus('developing');
+          }}
+        />
+      )}
+
+      {/* Development Progress Tracker */}
+      {showProgressTracker && (
+        <DevelopmentProgressTracker
+          isOpen={showProgressTracker}
+          projectId={projectId}
+          onClose={() => setShowProgressTracker(false)}
+          onComplete={() => {
+            setDevelopmentStatus('completed');
+            loadProject();
+          }}
         />
       )}
     </div>
