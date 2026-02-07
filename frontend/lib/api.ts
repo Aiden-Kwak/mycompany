@@ -223,6 +223,45 @@ class ApiClient {
   async getRepositoryCommits(repositoryId: string): Promise<any[]> {
     return this.request<any[]>(`/github/repositories/${repositoryId}/commits/`);
   }
+
+  // AI Service API Key endpoints
+  async getAIServices(): Promise<any[]> {
+    return this.request<any[]>('/api-keys/services/');
+  }
+
+  async getAPIKeys(): Promise<any[]> {
+    return this.request<any[]>('/api-keys/');
+  }
+
+  async getActiveAPIKeys(): Promise<any[]> {
+    return this.request<any[]>('/api-keys/active/');
+  }
+
+  async createAPIKey(data: {
+    service_type: string;
+    api_key: string;
+  }): Promise<any> {
+    return this.request<any>('/api-keys/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAPIKey(id: string, data: {
+    api_key?: string;
+    is_active?: boolean;
+  }): Promise<any> {
+    return this.request<any>(`/api-keys/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAPIKey(id: string): Promise<void> {
+    return this.request<void>(`/api-keys/${id}/`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Export singleton instance

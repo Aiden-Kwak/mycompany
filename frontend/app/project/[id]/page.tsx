@@ -12,6 +12,7 @@ import TaskBoard from '@/components/tasks/TaskBoard';
 import TaskCreateModal from '@/components/tasks/TaskCreateModal';
 import GitHubConnectModal from '@/components/github/GitHubConnectModal';
 import GitHubRepoCard from '@/components/github/GitHubRepoCard';
+import APIKeyManagementModal from '@/components/settings/APIKeyManagementModal';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -28,6 +29,7 @@ export default function ProjectDetailPage() {
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState(false);
+  const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
 
   useEffect(() => {
@@ -356,6 +358,12 @@ export default function ProjectDetailPage() {
               <PixelButton variant="primary">
                 🚀 Start Development
               </PixelButton>
+              <PixelButton
+                variant="secondary"
+                onClick={() => setShowAPIKeyModal(true)}
+              >
+                🔑 Manage API Keys
+              </PixelButton>
               <PixelButton variant="secondary">
                 📊 View Analytics
               </PixelButton>
@@ -400,6 +408,14 @@ export default function ProjectDetailPage() {
           projectId={projectId}
           onClose={() => setShowGitHubModal(false)}
           onSuccess={handleGitHubConnected}
+        />
+      )}
+
+      {/* API Key Management Modal */}
+      {showAPIKeyModal && (
+        <APIKeyManagementModal
+          isOpen={showAPIKeyModal}
+          onClose={() => setShowAPIKeyModal(false)}
         />
       )}
     </div>

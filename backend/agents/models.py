@@ -1,5 +1,41 @@
 from django.db import models
+from django.contrib.auth.models import User
 from projects.models import Project
+from .api_keys import APIKeyEncryption
+
+
+class AIServiceAPIKey(models.Model):
+    """Store encrypted API keys for AI services"""
+    
+    SERVICE_CHOICES = [
+        ('opencode', 'OpenCode'),
+        ('openai', 'OpenAI'),
+        ('anthropic', 'Anthropic Claude'),
+        ('google', 'Google AI'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_keys')
+    service_type = models.CharField(max_length=50, choices=SERVICE_CHOICES)
+    encrypted_key = models.TextField()  # Encrypted API key
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ['user', 'service_type']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_service_type_display()}"
+    
+    def set_api_key(self, api_key: str):
+        """Encrypt and store API key"""
+        self.encrypted_key = APIKeyEncryption.encrypt_key(api_key)
+    
+    def get_api_key(self) -> str:
+        """Decrypt and return API key"""
+        return APIKeyEncryption.decrypt_key(self.encrypted_key)
 
 
 class Agent(models.Model):
