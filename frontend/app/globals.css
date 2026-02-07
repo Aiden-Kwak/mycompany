@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-slate-800 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-slate-900;
+  }
+}
+
+@layer components {
+  /* Modern Card */
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50
+           transition-all duration-300 hover:shadow-xl hover:border-slate-300/50;
+  }
+
+  .card-hover {
+    @apply hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  /* Modern Button */
+  .btn {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-200 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white 
+           hover:from-primary-700 hover:to-primary-600 
+           focus:ring-primary-500 shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-slate-700 border border-slate-300
+           hover:bg-slate-50 hover:border-slate-400
+           focus:ring-slate-500 shadow-sm;
+  }
+
+  .btn-success {
+    @apply bg-gradient-to-r from-success-600 to-success-500 text-white 
+           hover:from-success-700 hover:to-success-600 
+           focus:ring-success-500 shadow-sm hover:shadow-md;
+  }
+
+  /* Modern Input */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-300
+           bg-white/50 backdrop-blur-sm shadow-sm
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+           transition-all duration-200 placeholder:text-slate-400;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-primary-100 text-primary-700 border border-primary-200;
+  }
+
+  .badge-success {
+    @apply bg-success-100 text-success-700 border border-success-200;
+  }
+
+  .badge-warning {
+    @apply bg-warning-100 text-warning-700 border border-warning-200;
+  }
+
+  .badge-danger {
+    @apply bg-danger-100 text-danger-700 border border-danger-200;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    @apply w-full h-2 bg-slate-200 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full 
+           transition-all duration-500 ease-out;
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
+  }
+
+  /* Icon Container */
+  .icon-container {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center 
+           bg-gradient-to-br shadow-sm;
+  }
+
+  /* Stat Card */
+  .stat-card {
+    @apply card p-6 space-y-2;
+  }
+
+  .stat-label {
+    @apply text-sm font-medium text-slate-600;
+  }
+
+  .stat-value {
+    @apply text-3xl font-bold text-slate-800;
+  }
+
+  /* Department Card */
+  .department-card {
+    @apply card card-hover p-6 cursor-pointer;
+  }
+
+  .department-icon {
+    @apply w-14 h-14 rounded-2xl flex items-center justify-center text-2xl
+           transition-transform duration-300 group-hover:scale-110;
+  }
+
+  /* Section Header */
+  .section-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-slate-800;
+  }
+
+  /* Grid Layouts */
+  .grid-auto-fit {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  /* Animations */
+  .animate-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  /* Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-slate-100 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full hover:bg-slate-400;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Made with Bob */
