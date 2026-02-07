@@ -3,8 +3,8 @@ Django==5.0.1
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
 
-# Database
-psycopg2-binary==2.9.9
+# Database (PostgreSQL for production, SQLite for development)
+# psycopg2-binary==2.9.9  # Uncomment when PostgreSQL is installed
 
 # Task Queue
 celery==5.3.4
