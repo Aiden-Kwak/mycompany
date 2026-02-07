@@ -19,6 +19,10 @@ requests==2.31.0
 # Cryptography (for token encryption)
 cryptography==41.0.7
 
+# GitHub Integration
+PyGithub==2.1.1
+django-allauth==0.57.0
+
 # Testing
 pytest==7.4.3
 pytest-django==4.7.0

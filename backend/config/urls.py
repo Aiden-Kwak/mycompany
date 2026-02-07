@@ -14,6 +14,8 @@ router.register(r'tasks', TaskViewSet, basename='task')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/github/', include('github_integration.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
 
 # Made with Bob
