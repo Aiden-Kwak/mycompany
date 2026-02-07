@@ -12,8 +12,10 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         // Check if user is authenticated via session
-        const response = await fetch('http://localhost:8000/api/auth/user/', {
+        const response = await fetch(`${apiUrl}/api/auth/user/`, {
           credentials: 'include', // Important: include cookies
         });
 
