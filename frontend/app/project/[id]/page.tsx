@@ -48,10 +48,14 @@ export default function ProjectDetailPage() {
       ]);
       setProject(projectData);
       setStats(statsData);
-      setAgents(agentsData);
-      setTasks(tasksData);
-      // Filter repositories for this project
-      const repos = Array.isArray(reposData) ? reposData : (reposData.results || []);
+      
+      // Handle paginated responses
+      const agents = Array.isArray(agentsData) ? agentsData : ((agentsData as any).results || []);
+      const tasks = Array.isArray(tasksData) ? tasksData : ((tasksData as any).results || []);
+      const repos = Array.isArray(reposData) ? reposData : ((reposData as any).results || []);
+      
+      setAgents(agents);
+      setTasks(tasks);
       setRepositories(repos.filter((repo: GitHubRepository) => repo.project === projectId));
     } catch (err) {
       console.error('Failed to load project:', err);
