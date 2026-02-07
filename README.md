@@ -2,9 +2,11 @@
 
 > 사장님이 되어 AI 부서들에게 업무를 지시하고, 자동으로 애플리케이션을 개발하는 귀여운 픽셀 아트 플랫폼
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Status](https://img.shields.io/badge/status-planning-yellow.svg)
+![Status](https://img.shields.io/badge/status-development-orange.svg)
+![Backend](https://img.shields.io/badge/backend-tested-green.svg)
+![API](https://img.shields.io/badge/API-12%2F12%20passing-brightgreen.svg)
 
 ## 📋 목차
 
@@ -252,41 +254,81 @@ my-dev-company/
 
 ## 🗺 개발 로드맵
 
-### Phase 1: GitHub 통합 및 인증 (Week 1) ✅ 계획 완료
+### Phase 1: 기반 구조 및 인증 ✅ 완료
 - [x] 프로젝트 구조 설계
-- [x] GitHub 통합 설계
-- [ ] GitHub OAuth 구현
-- [ ] GitHub API 클라이언트 구현
-- [ ] 자동 레포 생성 기능
+- [x] Django 프로젝트 초기화
+- [x] Next.js 프론트엔드 설정
+- [x] 데이터베이스 모델 설계
+- [x] GitHub OAuth 구현
+- [x] GitHub API 클라이언트 구현
+- [x] REST API 구현 (12개 엔드포인트)
+- [x] CORS 및 CSRF 설정
 
-### Phase 2: 프로토타입 UI (Week 2-3)
-- [ ] 픽셀 아트 디자인 시스템 구축
-- [ ] GitHub 로그인 UI
-- [ ] 메인 대시보드 UI 구현
-- [ ] 설문 시스템 UI 구현
-- [ ] 에이전트 카드 UI 구현 (코드 비노출)
+### Phase 2: 핵심 기능 구현 ✅ 완료
+- [x] 프로젝트 관리 시스템
+- [x] 에이전트 관리 시스템
+- [x] 태스크 관리 시스템
+- [x] 대시보드 통계 API
+- [x] 픽셀 아트 UI 컴포넌트
+- [x] 설문 시스템 UI
+- [x] 에이전트 카드 UI
 
-### Phase 3: 백엔드 개발 (Week 4-5)
-- [ ] Django 프로젝트 초기화
-- [ ] 데이터베이스 모델 설계
-- [ ] 에이전트 시스템 구현
+### Phase 3: API 테스트 및 버그 수정 ✅ 완료
+- [x] 모든 백엔드 API 테스트 (12/12 통과)
+- [x] "agents.map is not a function" 버그 수정
+- [x] 페이지네이션 일관성 문제 해결
+- [x] Create API 응답 데이터 완전성 수정
+- [x] 배열 유효성 검사 추가
+- [x] 환경 변수 설정 개선
+
+### Phase 4: 브라우저 테스트 및 UI 개선 🔄 진행 중
+- [ ] GitHub OAuth 플로우 E2E 테스트
+- [ ] 모든 모달 기능 테스트
+- [ ] 설문 시스템 전체 플로우 테스트
+- [ ] 드래그 앤 드롭 기능 테스트
+- [ ] 로딩 상태 추가
+- [ ] 에러 바운더리 구현
+- [ ] 성공 알림 구현
+
+### Phase 5: 고급 기능 📋 예정
 - [ ] OpenCode 통합
+- [ ] 에이전트 오케스트레이션 시스템
 - [ ] GitHub 자동 커밋 시스템
-- [ ] REST API 구현
-
-### Phase 4: 통합 및 테스트 (Week 6)
-- [ ] 프론트엔드-백엔드 연동
 - [ ] WebSocket 실시간 통신
-- [ ] GitHub 통합 테스트
-- [ ] E2E 테스트
-- [ ] 성능 최적화
-
-### Phase 5: 고급 기능 (Week 7+)
 - [ ] 프로젝트 템플릿 시스템
-- [ ] 커스텀 에이전트 플러그인
-- [ ] 협업 기능
 - [ ] GitHub Actions 자동 설정
 - [ ] 배포 자동화
+
+## 📊 현재 상태 (2026-02-07)
+
+### ✅ 완료된 기능
+- **백엔드 API**: 12개 엔드포인트 모두 정상 작동
+  - 인증 API
+  - 대시보드 통계 API
+  - 프로젝트 CRUD API
+  - 에이전트 CRUD API
+  - 태스크 CRUD API
+- **프론트엔드 UI**: 기본 페이지 및 컴포넌트 구현
+  - 로그인 페이지
+  - 메인 대시보드
+  - 프로젝트 생성 설문
+  - 프로젝트 상세 페이지
+  - 에이전트/태스크 관리 모달
+- **버그 수정**: 주요 런타임 에러 해결
+- **문서화**: API 테스트 결과 문서 작성
+
+### 🔄 진행 중
+- 브라우저 기반 E2E 테스트
+- UI/UX 개선
+- 에러 처리 강화
+
+### 📋 다음 단계
+1. 브라우저에서 전체 사용자 플로우 테스트
+2. 로딩 상태 및 에러 처리 개선
+3. OpenCode API 통합
+4. 에이전트 자동화 시스템 구현
+
+자세한 테스트 결과는 [API_TESTING_RESULTS.md](API_TESTING_RESULTS.md)를 참조하세요.
 
 ## 🎨 UI 미리보기
 
