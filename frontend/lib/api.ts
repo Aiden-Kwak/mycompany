@@ -249,7 +249,7 @@ class ApiClient {
     private?: boolean;
     auto_init?: boolean;
   }): Promise<any> {
-    return this.request<any>('/github/repositories/create_repository/', {
+    return this.request<any>('/github/repositories/create-repository/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
