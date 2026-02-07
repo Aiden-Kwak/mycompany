@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     "agents",
     "tasks",
     "github_integration",
+    "planning",
+    "opencode",
 ]
 
 SITE_ID = 1
