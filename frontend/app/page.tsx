@@ -9,10 +9,18 @@ export default function Home() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Check authentication
+    const authStatus = localStorage.getItem('isAuthenticated');
+    if (!authStatus) {
+      router.push('/login');
+      return;
+    }
+    setIsAuthenticated(true);
     loadProjects();
-  }, []);
+  }, [router]);
 
   const loadProjects = async () => {
     try {
@@ -125,9 +133,22 @@ export default function Home() {
                 <span className="mr-2">⚙️</span>
                 Settings
               </button>
-              <button className="btn btn-primary text-sm py-2">
+              <button
+                className="btn btn-primary text-sm py-2"
+                onClick={() => router.push('/project/new')}
+              >
                 <span className="mr-2">➕</span>
                 New Project
+              </button>
+              <button
+                className="btn btn-secondary text-sm py-2"
+                onClick={() => {
+                  localStorage.removeItem('isAuthenticated');
+                  router.push('/login');
+                }}
+              >
+                <span className="mr-2">🚪</span>
+                Logout
               </button>
             </div>
           </div>
