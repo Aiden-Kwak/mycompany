@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Project } from '@/lib/types';
+import { Project, Agent } from '@/lib/types';
 import PixelCard from '@/components/pixel/PixelCard';
 import PixelButton from '@/components/pixel/PixelButton';
 import AgentCard from '@/components/agents/AgentCard';
+import AgentCreateModal from '@/components/agents/AgentCreateModal';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -14,9 +15,11 @@ export default function ProjectDetailPage() {
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAgentModal, setShowAgentModal] = useState(false);
 
   useEffect(() => {
     loadProject();
@@ -25,18 +28,25 @@ export default function ProjectDetailPage() {
   const loadProject = async () => {
     try {
       setLoading(true);
-      const [projectData, statsData] = await Promise.all([
+      const [projectData, statsData, agentsData] = await Promise.all([
         api.getProject(projectId),
         api.getProjectStats(projectId),
+        api.getAgents(projectId),
       ]);
       setProject(projectData);
       setStats(statsData);
+      setAgents(agentsData);
     } catch (err) {
       console.error('Failed to load project:', err);
       setError(err instanceof Error ? err.message : 'Failed to load project');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAgentCreated = () => {
+    setShowAgentModal(false);
+    loadProject(); // Reload to get updated data
   };
 
   if (loading) {
@@ -154,16 +164,20 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* Agents Section (Placeholder) */}
+        {/* Agents Section */}
         <section className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-slate-900">AI Agents</h2>
-            <PixelButton variant="primary" size="sm">
+            <PixelButton
+              variant="primary"
+              size="sm"
+              onClick={() => setShowAgentModal(true)}
+            >
               + Add Agent
             </PixelButton>
           </div>
           
-          {stats?.total_agents === 0 ? (
+          {agents.length === 0 ? (
             <PixelCard className="p-12 text-center">
               <div className="text-6xl mb-4">🤖</div>
               <h3 className="text-xl font-semibold text-slate-900 mb-2">
@@ -172,20 +186,25 @@ export default function ProjectDetailPage() {
               <p className="text-slate-600 mb-6">
                 Add AI agents to start working on your project
               </p>
-              <PixelButton variant="primary">
+              <PixelButton
+                variant="primary"
+                onClick={() => setShowAgentModal(true)}
+              >
                 Create First Agent
               </PixelButton>
             </PixelCard>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Sample agent cards - will be replaced with real data */}
-              <AgentCard
-                name="Alice"
-                role="Frontend Developer"
-                status="idle"
-                avatar="👩‍💻"
-                progress={0}
-              />
+              {agents.map((agent) => (
+                <AgentCard
+                  key={agent.id}
+                  name={agent.name}
+                  role={agent.role}
+                  status={agent.status}
+                  avatar={agent.avatar}
+                  progress={0}
+                />
+              ))}
             </div>
           )}
         </section>
@@ -211,6 +230,15 @@ export default function ProjectDetailPage() {
           </PixelCard>
         </section>
       </main>
+
+      {/* Agent Creation Modal */}
+      {showAgentModal && (
+        <AgentCreateModal
+          projectId={projectId}
+          onClose={() => setShowAgentModal(false)}
+          onSuccess={handleAgentCreated}
+        />
+      )}
     </div>
   );
 }

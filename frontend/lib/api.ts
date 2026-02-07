@@ -92,26 +92,70 @@ class ApiClient {
     return this.request(`/projects/${projectId}/stats/`);
   }
 
-  // Agent endpoints (to be implemented in backend)
+  // Agent endpoints
   async getAgents(projectId?: string): Promise<Agent[]> {
     const endpoint = projectId ? `/agents/?project=${projectId}` : '/agents/';
     return this.request<Agent[]>(endpoint);
   }
 
-  async createAgent(data: Partial<Agent>): Promise<Agent> {
+  async getAgent(id: string): Promise<Agent> {
+    return this.request<Agent>(`/agents/${id}/`);
+  }
+
+  async createAgent(data: {
+    project: string;
+    name: string;
+    role: string;
+    department: string;
+    avatar?: string;
+    skills?: string[];
+  }): Promise<Agent> {
     return this.request<Agent>('/agents/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  // Task endpoints (to be implemented in backend)
-  async getTasks(projectId?: string): Promise<Task[]> {
-    const endpoint = projectId ? `/tasks/?project=${projectId}` : '/tasks/';
+  async updateAgent(id: string, data: Partial<Agent>): Promise<Agent> {
+    return this.request<Agent>(`/agents/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAgentStatus(id: string, status: 'idle' | 'working' | 'completed' | 'error'): Promise<Agent> {
+    return this.request<Agent>(`/agents/${id}/update_status/`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getAgentTasks(agentId: string): Promise<Task[]> {
+    return this.request<Task[]>(`/agents/${agentId}/tasks/`);
+  }
+
+  // Task endpoints
+  async getTasks(projectId?: string, agentId?: string): Promise<Task[]> {
+    let endpoint = '/tasks/';
+    const params = new URLSearchParams();
+    if (projectId) params.append('project', projectId);
+    if (agentId) params.append('agent', agentId);
+    if (params.toString()) endpoint += `?${params.toString()}`;
     return this.request<Task[]>(endpoint);
   }
 
-  async createTask(data: Partial<Task>): Promise<Task> {
+  async getTask(id: string): Promise<Task> {
+    return this.request<Task>(`/tasks/${id}/`);
+  }
+
+  async createTask(data: {
+    project: string;
+    assigned_to?: string;
+    title: string;
+    description: string;
+    priority?: 'high' | 'medium' | 'low';
+    dependencies?: string[];
+  }): Promise<Task> {
     return this.request<Task>('/tasks/', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -122,6 +166,23 @@ class ApiClient {
     return this.request<Task>(`/tasks/${id}/`, {
       method: 'PATCH',
       body: JSON.stringify(data),
+    });
+  }
+
+  async updateTaskProgress(id: string, progress: number): Promise<Task> {
+    return this.request<Task>(`/tasks/${id}/update_progress/`, {
+      method: 'POST',
+      body: JSON.stringify({ progress }),
+    });
+  }
+
+  async updateTaskStatus(
+    id: string,
+    status: 'pending' | 'in_progress' | 'review' | 'completed' | 'blocked' | 'failed'
+  ): Promise<Task> {
+    return this.request<Task>(`/tasks/${id}/update_status/`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
     });
   }
 }
