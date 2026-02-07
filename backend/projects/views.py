@@ -6,6 +6,7 @@ from django.db.models import Count, Q, Avg
 from .models import Project
 from .serializers import ProjectSerializer, ProjectCreateSerializer
 from agents.models import Agent
+from opencode.orchestrator import start_project_development
 from tasks.models import Task
 
 
@@ -131,6 +132,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'in_progress_tasks': in_progress_tasks,
             'completion_rate': completion_rate,
         })
+    
+    @action(detail=True, methods=['post'], url_path='start-development')
+    def start_development(self, request, pk=None):
+        """
+        Start automated development using OpenCode
+        
+        POST /api/projects/{id}/start-development/
+        """
+        project = self.get_object()
+        
+        # Start development process
+        result = start_project_development(project.id)
+        
+        if result['success']:
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Made with Bob
