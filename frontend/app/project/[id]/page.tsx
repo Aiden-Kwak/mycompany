@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Project, Agent, Task } from '@/lib/types';
+import { Project, Agent, Task, GitHubRepository } from '@/lib/types';
 import PixelCard from '@/components/pixel/PixelCard';
 import PixelButton from '@/components/pixel/PixelButton';
 import AgentCard from '@/components/agents/AgentCard';
 import AgentCreateModal from '@/components/agents/AgentCreateModal';
 import TaskBoard from '@/components/tasks/TaskBoard';
 import TaskCreateModal from '@/components/tasks/TaskCreateModal';
+import GitHubConnectModal from '@/components/github/GitHubConnectModal';
+import GitHubRepoCard from '@/components/github/GitHubRepoCard';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -20,10 +22,12 @@ export default function ProjectDetailPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<any>(null);
+  const [repositories, setRepositories] = useState<GitHubRepository[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showGitHubModal, setShowGitHubModal] = useState(false);
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
 
   useEffect(() => {
@@ -33,16 +37,19 @@ export default function ProjectDetailPage() {
   const loadProject = async () => {
     try {
       setLoading(true);
-      const [projectData, statsData, agentsData, tasksData] = await Promise.all([
+      const [projectData, statsData, agentsData, tasksData, reposData] = await Promise.all([
         api.getProject(projectId),
         api.getProjectStats(projectId),
         api.getAgents(projectId),
         api.getTasks(projectId),
+        api.getGitHubRepositories().catch(() => []),
       ]);
       setProject(projectData);
       setStats(statsData);
       setAgents(agentsData);
       setTasks(tasksData);
+      // Filter repositories for this project
+      setRepositories(reposData.filter((repo: GitHubRepository) => repo.project === projectId));
     } catch (err) {
       console.error('Failed to load project:', err);
       setError(err instanceof Error ? err.message : 'Failed to load project');
@@ -58,6 +65,11 @@ export default function ProjectDetailPage() {
 
   const handleTaskCreated = () => {
     setShowTaskModal(false);
+    loadProject(); // Reload to get updated data
+  };
+
+  const handleGitHubConnected = (repository: GitHubRepository) => {
+    setShowGitHubModal(false);
     loadProject(); // Reload to get updated data
   };
 
@@ -296,8 +308,48 @@ export default function ProjectDetailPage() {
           )}
         </section>
 
-        {/* Actions */}
+        {/* GitHub Integration Section */}
         <section className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">GitHub Integration</h2>
+            {repositories.length === 0 && (
+              <PixelButton
+                variant="primary"
+                size="sm"
+                onClick={() => setShowGitHubModal(true)}
+              >
+                🔗 Connect GitHub
+              </PixelButton>
+            )}
+          </div>
+
+          {repositories.length === 0 ? (
+            <PixelCard className="p-12 text-center">
+              <div className="text-6xl mb-4">🔗</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                No GitHub repository connected
+              </h3>
+              <p className="text-slate-600 mb-6">
+                Connect your GitHub account to automatically manage your project repository
+              </p>
+              <PixelButton
+                variant="primary"
+                onClick={() => setShowGitHubModal(true)}
+              >
+                Connect GitHub Repository
+              </PixelButton>
+            </PixelCard>
+          ) : (
+            <div className="space-y-4">
+              {repositories.map((repo) => (
+                <GitHubRepoCard key={repo.id} repository={repo} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Actions */}
+        <section className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
           <PixelCard className="p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
             <div className="flex flex-wrap gap-3">
@@ -310,9 +362,14 @@ export default function ProjectDetailPage() {
               <PixelButton variant="secondary">
                 ⚙️ Project Settings
               </PixelButton>
-              <PixelButton variant="secondary">
-                🔗 Connect GitHub
-              </PixelButton>
+              {repositories.length === 0 && (
+                <PixelButton
+                  variant="secondary"
+                  onClick={() => setShowGitHubModal(true)}
+                >
+                  🔗 Connect GitHub
+                </PixelButton>
+              )}
             </div>
           </PixelCard>
         </section>
@@ -333,6 +390,16 @@ export default function ProjectDetailPage() {
           projectId={projectId}
           onClose={() => setShowTaskModal(false)}
           onSuccess={handleTaskCreated}
+        />
+      )}
+
+      {/* GitHub Connect Modal */}
+      {showGitHubModal && (
+        <GitHubConnectModal
+          isOpen={showGitHubModal}
+          projectId={projectId}
+          onClose={() => setShowGitHubModal(false)}
+          onSuccess={handleGitHubConnected}
         />
       )}
     </div>

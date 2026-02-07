@@ -111,6 +111,43 @@ export interface SurveyAnswer {
 }
 
 // GitHub Types
+export interface GitHubAccount {
+  id: string;
+  user_id: number;
+  username: string;
+  email?: string;
+  avatar_url?: string;
+  access_token: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GitHubRepository {
+  id: string;
+  project: string;
+  github_account: string;
+  repo_name: string;
+  repo_full_name: string;
+  repo_url: string;
+  default_branch: string;
+  is_private: boolean;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GitHubCommit {
+  id: string;
+  repository: string;
+  sha: string;
+  message: string;
+  author_name: string;
+  author_email: string;
+  committed_at: string;
+  url: string;
+  created_at: string;
+}
+
 export interface GitHubRepo {
   id: number;
   name: string;

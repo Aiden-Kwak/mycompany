@@ -185,6 +185,44 @@ class ApiClient {
       body: JSON.stringify({ status }),
     });
   }
+
+  // GitHub endpoints
+  async getGitHubAccounts(): Promise<any[]> {
+    return this.request<any[]>('/github/accounts/');
+  }
+
+  async getGitHubRepositories(): Promise<any[]> {
+    return this.request<any[]>('/github/repositories/');
+  }
+
+  async createGitHubRepository(data: {
+    project_id: number;
+    name: string;
+    description?: string;
+    private?: boolean;
+    auto_init?: boolean;
+  }): Promise<any> {
+    return this.request<any>('/github/repositories/create_repository/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async commitFileToGitHub(repositoryId: string, data: {
+    file_path: string;
+    content: string;
+    commit_message: string;
+    branch?: string;
+  }): Promise<any> {
+    return this.request<any>(`/github/repositories/${repositoryId}/commit_file/`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getRepositoryCommits(repositoryId: string): Promise<any[]> {
+    return this.request<any[]>(`/github/repositories/${repositoryId}/commits/`);
+  }
 }
 
 // Export singleton instance
