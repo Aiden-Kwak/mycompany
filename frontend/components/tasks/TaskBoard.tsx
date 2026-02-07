@@ -31,9 +31,16 @@ export default function TaskBoard({ projectId, tasks, onTaskUpdate }: TaskBoardP
   const loadAgents = async () => {
     try {
       const data = await api.getAgents(projectId);
-      setAgents(data);
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setAgents(data);
+      } else {
+        console.error('Invalid agents data format:', data);
+        setAgents([]);
+      }
     } catch (err) {
       console.error('Failed to load agents:', err);
+      setAgents([]);
     }
   };
 
