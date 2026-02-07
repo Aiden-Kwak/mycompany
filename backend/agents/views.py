@@ -21,6 +21,18 @@ class AgentViewSet(viewsets.ModelViewSet):
             return AgentCreateSerializer
         return AgentSerializer
     
+    def create(self, request, *args, **kwargs):
+        """Override create to return full AgentSerializer response"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Return full agent data using AgentSerializer
+        instance = serializer.instance
+        output_serializer = AgentSerializer(instance)
+        headers = self.get_success_headers(output_serializer.data)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
     def get_queryset(self):
         queryset = Agent.objects.all()
         project_id = self.request.query_params.get('project', None)
