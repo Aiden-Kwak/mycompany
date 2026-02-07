@@ -34,7 +34,7 @@ class GitHubRepositoryViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return GitHubRepository.objects.filter(github_account__user=user)
     
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='create-repository')
     def create_repository(self, request):
         """Create a new GitHub repository for a project"""
         serializer = RepositoryCreateSerializer(data=request.data)
