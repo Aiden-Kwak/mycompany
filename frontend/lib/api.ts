@@ -9,18 +9,44 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private getCSRFToken(): string | null {
+    // Get CSRF token from cookie
+    const name = 'csrftoken';
+    let cookieValue: string | null = null;
+    if (typeof document !== 'undefined' && document.cookie) {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    };
+
+    // Add CSRF token for non-GET requests
+    const csrfToken = this.getCSRFToken();
+    if (csrfToken && options.method && options.method !== 'GET') {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+    
     const config: RequestInit = {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      credentials: 'include', // Include cookies for session authentication
+      headers,
     };
 
     try {
@@ -45,6 +71,27 @@ class ApiClient {
 
   async getProject(id: string): Promise<Project> {
     return this.request<Project>(`/projects/${id}/`);
+  }
+
+  async getDashboardStats(): Promise<{
+    stats: {
+      totalAgents: number;
+      activeTasks: number;
+      completionRate: number;
+      githubRepos: number;
+    };
+    departments: Array<{
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+      bgColor: string;
+      agents: number;
+      tasks: number;
+      progress: number;
+    }>;
+  }> {
+    return this.request('/projects/stats/');
   }
 
   async createProject(data: {

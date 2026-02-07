@@ -44,14 +44,15 @@ export default function ProjectDetailPage() {
         api.getProjectStats(projectId),
         api.getAgents(projectId),
         api.getTasks(projectId),
-        api.getGitHubRepositories().catch(() => []),
+        api.getGitHubRepositories().catch(() => ({ results: [] })),
       ]);
       setProject(projectData);
       setStats(statsData);
       setAgents(agentsData);
       setTasks(tasksData);
       // Filter repositories for this project
-      setRepositories(reposData.filter((repo: GitHubRepository) => repo.project === projectId));
+      const repos = Array.isArray(reposData) ? reposData : (reposData.results || []);
+      setRepositories(repos.filter((repo: GitHubRepository) => repo.project === projectId));
     } catch (err) {
       console.error('Failed to load project:', err);
       setError(err instanceof Error ? err.message : 'Failed to load project');

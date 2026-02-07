@@ -10,6 +10,22 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [stats, setStats] = useState({
+    totalAgents: 0,
+    activeTasks: 0,
+    completionRate: 0,
+    githubRepos: 0,
+  });
+  const [departments, setDepartments] = useState<Array<{
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+    bgColor: string;
+    agents: number;
+    tasks: number;
+    progress: number;
+  }>>([]);
 
   useEffect(() => {
     // Check authentication
@@ -19,98 +35,30 @@ export default function Home() {
       return;
     }
     setIsAuthenticated(true);
-    loadProjects();
+    loadData();
   }, [router]);
 
-  const loadProjects = async () => {
+  const loadData = async () => {
     try {
-      const data = await api.getProjects();
-      setProjects(data);
+      const [projectsData, dashboardData] = await Promise.all([
+        api.getProjects(),
+        api.getDashboardStats(),
+      ]);
+      setProjects(projectsData);
+      setStats(dashboardData.stats);
+      setDepartments(dashboardData.departments);
     } catch (error) {
-      console.error('Failed to load projects:', error);
+      console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const departments = [
-    {
-      id: 'dev',
-      name: 'Development',
-      icon: '💻',
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50',
-      agents: 3,
-      tasks: 12,
-      progress: 75,
-    },
-    {
-      id: 'design',
-      name: 'Design',
-      icon: '🎨',
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-50',
-      agents: 2,
-      tasks: 8,
-      progress: 60,
-    },
-    {
-      id: 'marketing',
-      name: 'Marketing',
-      icon: '📢',
-      color: 'from-pink-500 to-pink-600',
-      bgColor: 'bg-pink-50',
-      agents: 2,
-      tasks: 10,
-      progress: 85,
-    },
-    {
-      id: 'sales',
-      name: 'Sales',
-      icon: '💼',
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50',
-      agents: 4,
-      tasks: 15,
-      progress: 90,
-    },
-    {
-      id: 'hr',
-      name: 'Human Resources',
-      icon: '👥',
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'bg-orange-50',
-      agents: 2,
-      tasks: 6,
-      progress: 70,
-    },
-    {
-      id: 'finance',
-      name: 'Finance',
-      icon: '💰',
-      color: 'from-yellow-500 to-yellow-600',
-      bgColor: 'bg-yellow-50',
-      agents: 2,
-      tasks: 9,
-      progress: 65,
-    },
-    {
-      id: 'support',
-      name: 'Customer Support',
-      icon: '🎧',
-      color: 'from-teal-500 to-teal-600',
-      bgColor: 'bg-teal-50',
-      agents: 3,
-      tasks: 20,
-      progress: 80,
-    },
-  ];
-
-  const stats = [
-    { label: 'Total Agents', value: '18', change: '+2', trend: 'up' },
-    { label: 'Active Tasks', value: '80', change: '+12', trend: 'up' },
-    { label: 'Completion Rate', value: '76%', change: '+5%', trend: 'up' },
-    { label: 'GitHub Repos', value: '5', change: '+1', trend: 'up' },
+  const statsDisplay = [
+    { label: 'Total Agents', value: stats.totalAgents.toString(), change: '+2', trend: 'up' },
+    { label: 'Active Tasks', value: stats.activeTasks.toString(), change: '+12', trend: 'up' },
+    { label: 'Completion Rate', value: `${stats.completionRate}%`, change: '+5%', trend: 'up' },
+    { label: 'GitHub Repos', value: stats.githubRepos.toString(), change: '+1', trend: 'up' },
   ];
 
   return (
@@ -257,7 +205,7 @@ export default function Home() {
         {/* Stats Grid */}
         <section className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
+            {statsDisplay.map((stat, index) => (
               <div key={index} className="stat-card card-hover">
                 <div className="flex items-center justify-between">
                   <div className="stat-label">{stat.label}</div>

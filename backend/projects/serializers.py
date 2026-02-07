@@ -35,7 +35,8 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Project
-        fields = ['name', 'description', 'github_repo', 'requirements']
+        fields = ['id', 'name', 'description', 'github_repo', 'requirements', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
     
     def create(self, validated_data):
         requirements_data = validated_data.pop('requirements', [])

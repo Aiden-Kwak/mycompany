@@ -15,6 +15,7 @@ router.register(r'api-keys', AIServiceAPIKeyViewSet, basename='api-key')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/auth/', include('auth_api.urls')),
     path('api/github/', include('github_integration.urls')),
     path('accounts/', include('allauth.urls')),
 ]

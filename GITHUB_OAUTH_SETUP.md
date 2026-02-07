@@ -98,8 +98,37 @@ GITHUB_CLIENT_SECRET=your_client_secret_here
 ## 🚨 문제 해결
 
 ### "SocialApp.DoesNotExist" 에러
-- Django Admin에서 Social Application이 제대로 설정되었는지 확인
-- Sites에 `localhost:8000`이 선택되어 있는지 확인
+
+**원인**: Site domain이 잘못 설정되었거나 Social Application이 올바른 Site에 연결되지 않음
+
+**해결 방법**:
+1. Django Admin에서 Sites 섹션 확인
+   - Domain name이 `localhost:8000`인지 확인 (⚠️ `http://` 없이!)
+   - `http://localhost:8000`이나 `http://localhost:8000/`는 잘못된 설정입니다
+
+2. Social Application이 올바른 Site에 연결되었는지 확인
+   - Sites에 `localhost:8000`이 선택되어 있는지 확인
+
+**빠른 수정 명령어**:
+```bash
+cd backend
+source venv/bin/activate
+python manage.py shell -c "from django.contrib.sites.models import Site; from allauth.socialaccount.models import SocialApp; site = Site.objects.get(id=1); site.domain = 'localhost:8000'; site.save(); app = SocialApp.objects.get(provider='github'); app.sites.clear(); app.sites.add(site); print('수정 완료!')"
+```
+
+**설정 확인 명령어**:
+```bash
+python manage.py shell -c "from django.contrib.sites.models import Site; from allauth.socialaccount.models import SocialApp; print('=== Sites ==='); [print(f'ID: {s.id}, Domain: {s.domain}') for s in Site.objects.all()]; print('\n=== Social Apps ==='); [print(f'Provider: {app.provider}, Sites: {[s.domain for s in app.sites.all()]}') for app in SocialApp.objects.all()]"
+```
+
+**올바른 출력 예시**:
+```
+=== Sites ===
+ID: 1, Domain: localhost:8000
+
+=== Social Apps ===
+Provider: github, Sites: ['localhost:8000']
+```
 
 ### "Redirect URI mismatch" 에러
 - GitHub OAuth App의 Authorization callback URL이 정확한지 확인

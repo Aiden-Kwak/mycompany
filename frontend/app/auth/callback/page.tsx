@@ -12,33 +12,31 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get the code from URL params
-        const code = searchParams.get('code');
-        const error = searchParams.get('error');
+        // Check if user is authenticated via session
+        const response = await fetch('http://localhost:8000/api/auth/user/', {
+          credentials: 'include', // Important: include cookies
+        });
 
-        if (error) {
-          setStatus('error');
-          setMessage(`Authentication failed: ${error}`);
-          setTimeout(() => router.push('/login'), 3000);
-          return;
+        if (!response.ok) {
+          throw new Error('Failed to fetch user info');
         }
 
-        if (!code) {
-          setStatus('error');
-          setMessage('No authorization code received');
-          setTimeout(() => router.push('/login'), 3000);
-          return;
-        }
+        const data = await response.json();
 
-        // The django-allauth will handle the OAuth flow
-        // We just need to show success and redirect
-        setStatus('success');
-        setMessage('Authentication successful! Redirecting...');
-        
-        // Store a simple flag that user is authenticated
-        localStorage.setItem('isAuthenticated', 'true');
-        
-        setTimeout(() => router.push('/'), 1000);
+        if (data.isAuthenticated) {
+          setStatus('success');
+          setMessage('Authentication successful! Redirecting...');
+          
+          // Store user info in localStorage
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          setTimeout(() => router.push('/'), 1000);
+        } else {
+          setStatus('error');
+          setMessage('Authentication failed. Please try again.');
+          setTimeout(() => router.push('/login'), 3000);
+        }
       } catch (err) {
         console.error('Auth callback error:', err);
         setStatus('error');
@@ -48,7 +46,7 @@ export default function AuthCallbackPage() {
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
