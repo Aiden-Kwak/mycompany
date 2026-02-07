@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Project, Agent } from '@/lib/types';
+import { Project, Agent, Task } from '@/lib/types';
 import PixelCard from '@/components/pixel/PixelCard';
 import PixelButton from '@/components/pixel/PixelButton';
 import AgentCard from '@/components/agents/AgentCard';
 import AgentCreateModal from '@/components/agents/AgentCreateModal';
+import TaskBoard from '@/components/tasks/TaskBoard';
+import TaskCreateModal from '@/components/tasks/TaskCreateModal';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -16,10 +18,13 @@ export default function ProjectDetailPage() {
 
   const [project, setProject] = useState<Project | null>(null);
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAgentModal, setShowAgentModal] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
 
   useEffect(() => {
     loadProject();
@@ -28,14 +33,16 @@ export default function ProjectDetailPage() {
   const loadProject = async () => {
     try {
       setLoading(true);
-      const [projectData, statsData, agentsData] = await Promise.all([
+      const [projectData, statsData, agentsData, tasksData] = await Promise.all([
         api.getProject(projectId),
         api.getProjectStats(projectId),
         api.getAgents(projectId),
+        api.getTasks(projectId),
       ]);
       setProject(projectData);
       setStats(statsData);
       setAgents(agentsData);
+      setTasks(tasksData);
     } catch (err) {
       console.error('Failed to load project:', err);
       setError(err instanceof Error ? err.message : 'Failed to load project');
@@ -46,6 +53,11 @@ export default function ProjectDetailPage() {
 
   const handleAgentCreated = () => {
     setShowAgentModal(false);
+    loadProject(); // Reload to get updated data
+  };
+
+  const handleTaskCreated = () => {
+    setShowTaskModal(false);
     loadProject(); // Reload to get updated data
   };
 
@@ -209,8 +221,83 @@ export default function ProjectDetailPage() {
           )}
         </section>
 
-        {/* Actions */}
+        {/* Tasks Section */}
         <section className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">Tasks</h2>
+            <div className="flex items-center space-x-3">
+              {/* View Toggle */}
+              <div className="flex items-center space-x-2 bg-white rounded-lg p-1 border border-slate-200">
+                <button
+                  onClick={() => setViewMode('board')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                    viewMode === 'board'
+                      ? 'bg-primary-500 text-white'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📋 Board
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-primary-500 text-white'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📝 List
+                </button>
+              </div>
+              <PixelButton
+                variant="primary"
+                size="sm"
+                onClick={() => setShowTaskModal(true)}
+              >
+                + Add Task
+              </PixelButton>
+            </div>
+          </div>
+
+          {tasks.length === 0 ? (
+            <PixelCard className="p-12 text-center">
+              <div className="text-6xl mb-4">📋</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                No tasks yet
+              </h3>
+              <p className="text-slate-600 mb-6">
+                Create tasks to organize your project work
+              </p>
+              <PixelButton
+                variant="primary"
+                onClick={() => setShowTaskModal(true)}
+              >
+                Create First Task
+              </PixelButton>
+            </PixelCard>
+          ) : viewMode === 'board' ? (
+            <TaskBoard
+              projectId={projectId}
+              tasks={tasks}
+              onTaskUpdate={loadProject}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tasks.map((task) => (
+                <div key={task.id}>
+                  {/* Task list view - simplified for now */}
+                  <PixelCard className="p-4">
+                    <h3 className="font-semibold text-slate-900 mb-2">{task.title}</h3>
+                    <p className="text-sm text-slate-600">{task.description}</p>
+                  </PixelCard>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Actions */}
+        <section className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <PixelCard className="p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
             <div className="flex flex-wrap gap-3">
@@ -237,6 +324,15 @@ export default function ProjectDetailPage() {
           projectId={projectId}
           onClose={() => setShowAgentModal(false)}
           onSuccess={handleAgentCreated}
+        />
+      )}
+
+      {/* Task Creation Modal */}
+      {showTaskModal && (
+        <TaskCreateModal
+          projectId={projectId}
+          onClose={() => setShowTaskModal(false)}
+          onSuccess={handleTaskCreated}
         />
       )}
     </div>
