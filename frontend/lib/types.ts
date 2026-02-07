@@ -187,4 +187,72 @@ export interface DepartmentStats {
   progress: number;
 }
 
+// Planning Document Types
+export interface PlanningDocument {
+  id: string;
+  project: string;
+  executive_summary: string;
+  technical_requirements: string;
+  feature_specifications: string;
+  development_plan: string;
+  timeline: string;
+  agent_recommendations: AgentRecommendation[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgentRecommendation {
+  id: string;
+  planning_document: string;
+  role: string;
+  name: string;
+  avatar: string;
+  skills: string[];
+  department: string;
+  justification: string;
+  created: boolean;
+  agent_id?: string;
+}
+
+// Development Types
+export interface DevelopmentRun {
+  id: string;
+  project: string;
+  planning_document: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'paused';
+  tasks_total: number;
+  tasks_completed: number;
+  progress: number;
+  started_at: string;
+  completed_at?: string;
+  error_message?: string;
+  generated_files: GeneratedFile[];
+  logs: DevelopmentLog[];
+}
+
+export interface GeneratedFile {
+  id: string;
+  path: string;
+  content: string;
+  language: string;
+  size: number;
+  created_at: string;
+}
+
+export interface DevelopmentLog {
+  id: string;
+  timestamp: string;
+  level: 'info' | 'warning' | 'error' | 'success';
+  message: string;
+  task_id?: string;
+}
+
+export interface DevelopmentConfig {
+  provider: 'openai' | 'anthropic' | 'google' | 'groq' | 'local';
+  model: string;
+  parallel_execution: boolean;
+  auto_commit: boolean;
+  notify_on_completion: boolean;
+}
+
 // Made with Bob

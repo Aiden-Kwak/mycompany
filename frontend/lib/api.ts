@@ -309,6 +309,63 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Planning Document endpoints
+  async generatePlanningDocument(projectId: string): Promise<any> {
+    return this.request<any>('/planning/generate/', {
+      method: 'POST',
+      body: JSON.stringify({ project_id: projectId }),
+    });
+  }
+
+  async getPlanningDocument(projectId: string): Promise<any> {
+    return this.request<any>(`/planning/by-project/${projectId}/`);
+  }
+
+  async regeneratePlanningDocument(documentId: string): Promise<any> {
+    return this.request<any>(`/planning/${documentId}/regenerate/`, {
+      method: 'POST',
+    });
+  }
+
+  // Development endpoints
+  async startDevelopment(projectId: string, config?: {
+    provider?: string;
+    model?: string;
+    parallel_execution?: boolean;
+    auto_commit?: boolean;
+  }): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/start-development/`, {
+      method: 'POST',
+      body: JSON.stringify(config || {}),
+    });
+  }
+
+  async getDevelopmentStatus(projectId: string): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/development-status/`);
+  }
+
+  async pauseDevelopment(projectId: string): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/pause-development/`, {
+      method: 'POST',
+    });
+  }
+
+  async resumeDevelopment(projectId: string): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/resume-development/`, {
+      method: 'POST',
+    });
+  }
+
+  async cancelDevelopment(projectId: string): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/cancel-development/`, {
+      method: 'POST',
+    });
+  }
+
+  async getDevelopmentHistory(projectId: string): Promise<any[]> {
+    return this.request<any[]>(`/projects/${projectId}/development-history/`);
+  }
 }
 
 // Export singleton instance
