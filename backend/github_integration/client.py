@@ -18,7 +18,7 @@ class GitHubClient:
             access_token: GitHub personal access token or OAuth token
         """
         self.access_token = access_token
-        self.client = Github(access_token) if access_token else None
+        self.client = GithubAPI(access_token) if access_token else None
         
     def get_user(self):
         """Get authenticated user information"""

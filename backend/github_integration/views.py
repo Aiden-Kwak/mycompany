@@ -3,6 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .models import GitHubAccount, GitHubRepository, GitHubCommit
 from .serializers import (
@@ -79,8 +83,12 @@ class GitHubRepositoryViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED
             )
         except Exception as e:
+            import traceback
+            error_msg = str(e) if str(e) else repr(e)
+            error_trace = traceback.format_exc()
+            logger.error(f"Error creating GitHub repository: {error_msg}\n{error_trace}")
             return Response(
-                {'error': str(e)},
+                {'error': error_msg, 'detail': error_trace if settings.DEBUG else 'Internal server error'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     

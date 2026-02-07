@@ -33,9 +33,16 @@ export default function TaskCreateModal({
   const loadAgents = async () => {
     try {
       const data = await api.getAgents(projectId);
-      setAgents(data);
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setAgents(data);
+      } else {
+        console.error('Invalid agents data format:', data);
+        setAgents([]);
+      }
     } catch (err) {
       console.error('Failed to load agents:', err);
+      setAgents([]);
     }
   };
 
@@ -178,7 +185,7 @@ export default function TaskCreateModal({
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Assign to Agent (Optional)
             </label>
-            {agents.length === 0 ? (
+            {!Array.isArray(agents) || agents.length === 0 ? (
               <div className="text-sm text-slate-500 bg-slate-50 rounded-lg p-4 text-center">
                 No agents available. Create agents first to assign tasks.
               </div>

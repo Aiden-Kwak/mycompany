@@ -13,7 +13,7 @@ class GitHubAccount(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='github_account')
     github_id = models.BigIntegerField(unique=True)
     username = models.CharField(max_length=255)
-    email = models.EmailField(blank=True)
+    email = models.EmailField(blank=True, null=True)  # Allow null
     avatar_url = models.URLField(blank=True)
     access_token_encrypted = models.TextField()  # Encrypted token
     created_at = models.DateTimeField(auto_now_add=True)
