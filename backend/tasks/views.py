@@ -14,6 +14,18 @@ class TaskViewSet(viewsets.ModelViewSet):
             return TaskCreateSerializer
         return TaskSerializer
     
+    def create(self, request, *args, **kwargs):
+        """Override create to return full TaskSerializer response"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Return full task data using TaskSerializer
+        instance = serializer.instance
+        output_serializer = TaskSerializer(instance)
+        headers = self.get_success_headers(output_serializer.data)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
     def get_queryset(self):
         queryset = Task.objects.all()
         project_id = self.request.query_params.get('project', None)
